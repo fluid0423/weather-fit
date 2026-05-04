@@ -75,8 +75,13 @@ export function useWeather() {
       const { x, y } = toKmaGrid(latitude, longitude);
 
       const addr = await Location.reverseGeocodeAsync({ latitude, longitude });
-      const locationName = addr[0]
-        ? `${addr[0].city ?? ""} ${addr[0].district ?? ""}`.trim()
+      const a = addr[0];
+      const locationName = a
+        ? [a.region, a.subregion, a.district, a.city]
+            .filter(Boolean)
+            .slice(0, 2)
+            .join(" ")
+            .trim() || "현재 위치"
         : "현재 위치";
 
       if (!apiKey) {
@@ -86,7 +91,7 @@ export function useWeather() {
 
       const { baseDate, baseTime } = getBaseTime();
       const encodedKey = encodeURIComponent(apiKey);
-      const url = `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${encodedKey}&numOfRows=300&pageNo=1&dataType=JSON&base_date=${baseDate}&base_time=${baseTime}&nx=${x}&ny=${y}`;
+      const url = `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${encodedKey}&numOfRows=1000&pageNo=1&dataType=JSON&base_date=${baseDate}&base_time=${baseTime}&nx=${x}&ny=${y}`;
       const res = await globalThis.fetch(url);
       const json = await res.json();
       const items: any[] = json?.response?.body?.items?.item ?? [];
@@ -118,6 +123,7 @@ export function useWeather() {
         windSpeed: Number(current.WSD ?? 0),
       });
     } catch (e: any) {
+      console.warn("[useWeather] error:", e?.message ?? e);
       setError("날씨를 불러오지 못했어요.");
     } finally {
       setLoading(false);
