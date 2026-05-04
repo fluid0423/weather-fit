@@ -25,13 +25,13 @@ export default function SettingsScreen() {
             </View>
             <View className="flex-row justify-between">
               <Text className="text-slate-400 text-sm">개발</Text>
-              <Text className="text-slate-700 text-sm font-medium">bemarkable</Text>
+              <Text className="text-slate-700 text-sm font-medium">inome</Text>
             </View>
           </View>
         </View>
 
         <View className="mt-6">
-          <Text className="text-slate-400 text-xs text-center">© 2026 bemarkable</Text>
+          <Text className="text-slate-400 text-xs text-center">© 2026 inome</Text>
         </View>
       </View>
     </SafeAreaView>
