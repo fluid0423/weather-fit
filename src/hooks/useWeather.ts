@@ -70,19 +70,28 @@ export function useWeather() {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") { setError("위치 권한이 필요합니다."); return; }
 
-      const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-      const { latitude, longitude } = loc.coords;
-      const { x, y } = toKmaGrid(latitude, longitude);
+      // 현재 위치 시도, 실패 시 마지막 위치, 그래도 실패 시 서울 기본값
+      let latitude = 37.5665, longitude = 126.9780;
+      let locationName = "서울특별시";
+      try {
+        const loc =
+          await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })
+            .catch(() => Location.getLastKnownPositionAsync());
+        if (loc) {
+          latitude = loc.coords.latitude;
+          longitude = loc.coords.longitude;
+          const addr = await Location.reverseGeocodeAsync({ latitude, longitude });
+          const a = addr[0];
+          locationName = a
+            ? [a.region, a.subregion, a.district, a.city]
+                .filter(Boolean).slice(0, 2).join(" ").trim() || "현재 위치"
+            : "현재 위치";
+        }
+      } catch {
+        // 기본값 서울 유지
+      }
 
-      const addr = await Location.reverseGeocodeAsync({ latitude, longitude });
-      const a = addr[0];
-      const locationName = a
-        ? [a.region, a.subregion, a.district, a.city]
-            .filter(Boolean)
-            .slice(0, 2)
-            .join(" ")
-            .trim() || "현재 위치"
-        : "현재 위치";
+      const { x, y } = toKmaGrid(latitude, longitude);
 
       if (!apiKey) {
         setWeather({ locationName, currentTemp: 22, sky: 1, pty: 0, humidity: 55, windSpeed: 2 });
