@@ -57,8 +57,8 @@ function getBaseTime() {
 }
 
 export function useWeather() {
-  const { apiKey: storedKey, setWeather, lastFetched, currentTemp } = useWeatherStore();
-  const apiKey = storedKey || ENV_API_KEY;
+  const { setWeather, lastFetched, currentTemp } = useWeatherStore();
+  const apiKey = ENV_API_KEY;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
