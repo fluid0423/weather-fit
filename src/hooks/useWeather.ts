@@ -85,10 +85,13 @@ export function useWeather() {
       }
 
       const { baseDate, baseTime } = getBaseTime();
-      const url = `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${apiKey}&numOfRows=200&pageNo=1&dataType=JSON&base_date=${baseDate}&base_time=${baseTime}&nx=${x}&ny=${y}`;
+      const encodedKey = encodeURIComponent(apiKey);
+      const url = `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${encodedKey}&numOfRows=300&pageNo=1&dataType=JSON&base_date=${baseDate}&base_time=${baseTime}&nx=${x}&ny=${y}`;
       const res = await globalThis.fetch(url);
       const json = await res.json();
       const items: any[] = json?.response?.body?.items?.item ?? [];
+
+      if (!items.length) throw new Error("empty response");
 
       const byTimeKey: Record<string, Record<string, string>> = {};
       for (const item of items) {
@@ -98,7 +101,8 @@ export function useWeather() {
       }
 
       const now = new Date();
-      const currentKey = Object.keys(byTimeKey).find((k) => {
+      const sortedKeys = Object.keys(byTimeKey).sort();
+      const currentKey = sortedKeys.find((k) => {
         const [d, t] = k.split("_");
         const dt = new Date(`${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}T${t.slice(0, 2)}:${t.slice(2, 4)}:00`);
         return dt >= now;
