@@ -1,4 +1,4 @@
-name: Android APK Build
+name: Android Build
 
 on:
   push:
@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   build:
-    name: Build APK
+    name: Build APK + AAB
     runs-on: ubuntu-latest
 
     steps:
@@ -31,7 +31,7 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
-      - name: Build APK (EAS Cloud)
+      - name: Build APK (preview)
         run: |
           eas build \
             --platform android \
@@ -46,14 +46,32 @@ jobs:
             --non-interactive \
             --json | jq -r '.[0].artifacts.buildUrl')
 
-          echo "APK_URL=$APK_URL"
           curl -L "$APK_URL" -o weather-fit.apk
 
-      - name: Upload APK artifact
+      - name: Build AAB (production)
+        run: |
+          eas build \
+            --platform android \
+            --profile production \
+            --non-interactive \
+            --wait
+
+          AAB_URL=$(eas build:list \
+            --platform android \
+            --limit 1 \
+            --status finished \
+            --non-interactive \
+            --json | jq -r '.[0].artifacts.buildUrl')
+
+          curl -L "$AAB_URL" -o weather-fit.aab
+
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: weather-fit-${{ github.run_number }}
-          path: weather-fit.apk
+          path: |
+            weather-fit.apk
+            weather-fit.aab
           retention-days: 30
 
       - name: Create GitHub Release
@@ -64,7 +82,11 @@ jobs:
           body: |
             커밋: ${{ github.sha }}
             브랜치: ${{ github.ref_name }}
-          files: weather-fit.apk
+            - APK: 테스트용 (직접 설치)
+            - AAB: Play Store 제출용
+          files: |
+            weather-fit.apk
+            weather-fit.aab
           prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

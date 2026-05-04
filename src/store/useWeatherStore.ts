@@ -10,6 +10,12 @@ const mmkvStorage = {
   removeItem: (key: string) => mmkv.delete(key),
 };
 
+export interface CustomLocation {
+  name: string;
+  lat: number;
+  lon: number;
+}
+
 export interface WeatherState {
   locationName: string;
   currentTemp: number | null;
@@ -18,8 +24,10 @@ export interface WeatherState {
   humidity: number;
   windSpeed: number;
   lastFetched: number | null;
+  customLocation: CustomLocation | null;
 
   setWeather: (data: Partial<WeatherState>) => void;
+  setCustomLocation: (loc: CustomLocation | null) => void;
 }
 
 export const useWeatherStore = create<WeatherState>()(
@@ -32,8 +40,10 @@ export const useWeatherStore = create<WeatherState>()(
       humidity: 0,
       windSpeed: 0,
       lastFetched: null,
+      customLocation: null,
 
       setWeather: (data) => set((s) => ({ ...s, ...data, lastFetched: Date.now() })),
+      setCustomLocation: (loc) => set((s) => ({ ...s, customLocation: loc, lastFetched: null })),
     }),
     {
       name: "weather-store",

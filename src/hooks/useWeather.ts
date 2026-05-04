@@ -57,7 +57,7 @@ function getBaseTime() {
 }
 
 export function useWeather() {
-  const { setWeather, lastFetched, currentTemp } = useWeatherStore();
+  const { setWeather, lastFetched, currentTemp, customLocation } = useWeatherStore();
   const apiKey = ENV_API_KEY;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -67,28 +67,34 @@ export function useWeather() {
       setLoading(true);
       setError(null);
 
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") { setError("위치 권한이 필요합니다."); return; }
-
-      // 현재 위치 시도, 실패 시 마지막 위치, 그래도 실패 시 서울 기본값
       let latitude = 37.5665, longitude = 126.9780;
       let locationName = "서울특별시";
-      try {
-        const loc =
-          await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })
-            .catch(() => Location.getLastKnownPositionAsync());
-        if (loc) {
-          latitude = loc.coords.latitude;
-          longitude = loc.coords.longitude;
-          const addr = await Location.reverseGeocodeAsync({ latitude, longitude });
-          const a = addr[0];
-          locationName = a
-            ? [a.region, a.subregion, a.district, a.city]
-                .filter(Boolean).slice(0, 2).join(" ").trim() || "현재 위치"
-            : "현재 위치";
+
+      if (customLocation) {
+        latitude = customLocation.lat;
+        longitude = customLocation.lon;
+        locationName = customLocation.name;
+      } else {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") { setError("위치 권한이 필요합니다."); return; }
+
+        try {
+          const loc =
+            await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })
+              .catch(() => Location.getLastKnownPositionAsync());
+          if (loc) {
+            latitude = loc.coords.latitude;
+            longitude = loc.coords.longitude;
+            const addr = await Location.reverseGeocodeAsync({ latitude, longitude });
+            const a = addr[0];
+            locationName = a
+              ? [a.region, a.subregion, a.district, a.city]
+                  .filter(Boolean).slice(0, 2).join(" ").trim() || "현재 위치"
+              : "현재 위치";
+          }
+        } catch {
+          // 기본값 서울 유지
         }
-      } catch {
-        // 기본값 서울 유지
       }
 
       const { x, y } = toKmaGrid(latitude, longitude);
@@ -142,7 +148,7 @@ export function useWeather() {
   useEffect(() => {
     const stale = !lastFetched || Date.now() - lastFetched > 30 * 60 * 1000;
     if (stale || currentTemp === null) fetch();
-  }, [apiKey]);
+  }, [apiKey, customLocation?.name]);
 
   return { loading, error, refresh: fetch };
 }

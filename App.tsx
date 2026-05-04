@@ -28,15 +28,15 @@ export default function App() {
           screenOptions={{
             headerShown: false,
             tabBarStyle: {
-              backgroundColor: "#FFFFFF",
-              borderTopColor: "#F1F5F9",
+              backgroundColor: "#0f172a",
+              borderTopColor: "rgba(255,255,255,0.08)",
               borderTopWidth: 1,
               height: 68,
               paddingBottom: 12,
               paddingTop: 8,
             },
-            tabBarActiveTintColor: "#6366F1",
-            tabBarInactiveTintColor: "#94A3B8",
+            tabBarActiveTintColor: "#a5b4fc",
+            tabBarInactiveTintColor: "rgba(255,255,255,0.3)",
             tabBarLabelStyle: { fontSize: 10, fontWeight: "600" },
           }}
         >
