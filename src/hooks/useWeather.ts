@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import * as Location from "expo-location";
 import { useWeatherStore } from "../store/useWeatherStore";
 
+const ENV_API_KEY = process.env.EXPO_PUBLIC_WEATHER_API_KEY ?? "";
+
 const SKY_MAP: Record<number, string> = { 1: "맑음", 3: "구름많음", 4: "흐림" };
 const PTY_MAP: Record<number, string> = { 0: "", 1: "비", 2: "비/눈", 3: "눈", 4: "소나기" };
 
@@ -55,7 +57,8 @@ function getBaseTime() {
 }
 
 export function useWeather() {
-  const { apiKey, setWeather, lastFetched, currentTemp } = useWeatherStore();
+  const { apiKey: storedKey, setWeather, lastFetched, currentTemp } = useWeatherStore();
+  const apiKey = storedKey || ENV_API_KEY;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
