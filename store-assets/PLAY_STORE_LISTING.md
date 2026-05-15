@@ -5,7 +5,7 @@
 | 항목 | 내용 |
 |------|------|
 | **앱 이름** | 오늘 뭐 입지? |
-| **패키지명** | kr.bemarkable.weatherfit |
+| **패키지명** | kr.inome.weatherfit |
 | **버전** | 1.0.0 (versionCode: 1) |
 | **카테고리** | 날씨 |
 | **콘텐츠 등급** | 전체 이용가 |
@@ -135,7 +135,7 @@ URL: `https://fluid0423.github.io/weather-fit/privacy-policy`
 ## Play Console 제출 체크리스트
 
 - [ ] AAB 파일 빌드 완료 (`app-release.aab`)
-- [ ] Play Console에서 새 앱 생성 (`kr.bemarkable.weatherfit`)
+- [ ] Play Console에서 새 앱 생성 (`kr.inome.weatherfit`)
 - [ ] 앱 아이콘 업로드 (512×512 PNG)
 - [ ] 피처 그래픽 업로드 (1024×500 PNG)
 - [ ] 스크린샷 업로드 (최소 2장)
